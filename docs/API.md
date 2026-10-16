@@ -48,3 +48,50 @@ Respuesta `200`:
   "nightlyRates": [{"date": "2026-12-30", "season": "HIGH", "seasonLabel": "Temporada alta", "price": 180.00}]
 }
 ```
+
+## Habitaciones y reservas
+
+### GET /api/hotel/habitaciones
+
+Respuesta `200`: arreglo de habitaciones.
+
+```json
+[{ "id": 1, "number": "101", "type": "SINGLE", "typeLabel": "Sencilla", "floor": 1, "capacity": 1, "basePrice": 80.00, "description": "Habitación sencilla", "status": "AVAILABLE", "statusLabel": "Disponible" }]
+```
+
+### POST /api/hotel/reservar
+
+Petición:
+
+```json
+{ "roomId": 7, "checkIn": "2026-11-01", "checkOut": "2026-11-04",
+  "guest": { "fullName": "Ana Pérez", "documentNumber": "1020304050", "email": "ana@correo.com", "phone": "3001234567" } }
+```
+
+Validaciones: todos los datos del huésped son obligatorios y el correo debe ser válido. `checkIn` no puede estar en el pasado y `checkOut` debe ser posterior a `checkIn`.
+
+Respuesta `201`: `ReservationDTO`.
+
+```json
+{
+  "id": "RES-1001", "status": "CONFIRMED", "statusLabel": "Confirmada",
+  "guest": { "fullName": "Ana Pérez", "documentNumber": "1020304050", "email": "ana@correo.com", "phone": "3001234567" },
+  "room": { "id": 7, "number": "201", "type": "DOUBLE", "typeLabel": "Doble", "floor": 2, "capacity": 2, "basePrice": 120.00, "description": "Habitación doble con vista a la ciudad", "status": "AVAILABLE", "statusLabel": "Disponible" },
+  "checkIn": "2026-11-01", "checkOut": "2026-11-04", "nights": 3,
+  "roomTotal": 360.00,
+  "services": [],
+  "servicesTotal": 0.00, "estimatedTotal": 360.00,
+  "digitalKey": null, "invoiceNumber": null,
+  "createdAt": "2026-10-16T15:04:05", "checkedInAt": null, "checkedOutAt": null
+}
+```
+
+### GET /api/hotel/reserva/{reservaId}
+
+Respuesta `200`: `ReservationDTO`. Error `404` si la reserva no existe.
+
+Ejemplo: `GET /api/hotel/reserva/RES-1001`
+
+### GET /api/hotel/reservas
+
+Respuesta `200`: arreglo de `ReservationDTO`, de la más reciente a la más antigua.
