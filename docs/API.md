@@ -95,3 +95,27 @@ Ejemplo: `GET /api/hotel/reserva/RES-1001`
 ### GET /api/hotel/reservas
 
 Respuesta `200`: arreglo de `ReservationDTO`, de la más reciente a la más antigua.
+
+## Servicios adicionales
+
+### POST /api/hotel/servicios/{reservaId}
+
+Petición: `{ "serviceType": "SPA" }`. Permitido cuando la reserva está `CONFIRMED` o `CHECKED_IN`.
+
+Respuesta `200`: `ReservationDTO` actualizado. Ejemplo con desayuno de tres noches:
+
+```json
+{
+  "id": "RES-1001", "status": "CONFIRMED", "statusLabel": "Confirmada",
+  "services": [ { "id": "SRV-1", "type": "BREAKFAST", "label": "Desayuno", "chargeMode": "PER_NIGHT", "unitPrice": 15.00, "quantity": 3, "total": 45.00, "addedAt": "2026-10-16T15:05:00" } ],
+  "servicesTotal": 45.00, "estimatedTotal": 405.00
+}
+```
+
+### GET /api/hotel/servicios/catalogo
+
+Respuesta `200`:
+
+```json
+[{ "type": "SPA", "label": "Spa", "unitPrice": 50.00, "chargeMode": "FLAT", "description": "Sesión de spa y relajación" }]
+```
