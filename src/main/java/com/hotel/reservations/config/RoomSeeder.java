@@ -5,6 +5,7 @@ import com.hotel.reservations.model.RoomType;
 import com.hotel.reservations.repository.RoomRepository;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
  * Solo siembra datos cuando el repositorio de habitaciones está vacío.
  */
 @Component
+@Order(1)
 public class RoomSeeder implements ApplicationRunner {
 
     private static final String[] DESCRIPTIONS = {
