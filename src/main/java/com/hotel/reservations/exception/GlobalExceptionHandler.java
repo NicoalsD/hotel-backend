@@ -2,6 +2,8 @@ package com.hotel.reservations.exception;
 
 import com.hotel.reservations.dto.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private static final String DEFAULT_VALIDATION_MESSAGE = "Los datos enviados no son válidos";
 
     /**
@@ -87,6 +90,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleUnreadableBody(HttpMessageNotReadableException ex,
                                                                  HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST.value(), "El cuerpo de la solicitud no es válido", request);
+    }
+
+    /**
+     * Respuesta genérica para cualquier error no controlado. El detalle se registra en el log.
+     *
+     * @param ex error no controlado
+     * @param request solicitud que produjo el error
+     * @return respuesta 500 con mensaje genérico
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseDTO> handleUnexpected(Exception ex, HttpServletRequest request) {
+        LOG.error("Error no controlado en {}", request.getRequestURI(), ex);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error interno del servidor", request);
     }
 
     /**
