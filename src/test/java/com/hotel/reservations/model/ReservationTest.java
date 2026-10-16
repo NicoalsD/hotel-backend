@@ -20,15 +20,12 @@ class ReservationTest {
     private static class FixedQuantityService extends AdditionalService {
 
         FixedQuantityService(String id, AdditionalServiceType type, int quantity) {
-            super(id, type, 0L);
-            this.fixedQuantity = quantity;
+            super(id, type, quantity);
         }
-
-        private int fixedQuantity;
 
         @Override
         protected int calculateQuantity(long reservationNights) {
-            return fixedQuantity;
+            return (int) reservationNights;
         }
     }
 
