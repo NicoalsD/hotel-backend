@@ -115,6 +115,15 @@ public class Room {
         bookings.remove(reservationId);
     }
 
+    /**
+     * Restaura el estado físico persistido de la habitación, sin efectos secundarios.
+     *
+     * @param status estado persistido
+     */
+    public void restoreStatus(RoomStatus status) {
+        this.status = status;
+    }
+
     /** Marca la habitación como ocupada (check-in realizado). */
     public void markOccupied() {
         this.status = RoomStatus.OCCUPIED;

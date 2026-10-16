@@ -26,6 +26,23 @@ public class DigitalKey {
         this.issuedAt = issuedAt;
     }
 
+    /**
+     * Reconstruye una llave a partir de los datos persistidos.
+     *
+     * @param code código único de la llave
+     * @param roomNumber número de la habitación que abre
+     * @param reservationId reserva a la que pertenece
+     * @param issuedAt momento de emisión
+     * @param active {@code true} si la llave aún está activa
+     * @return llave restaurada
+     */
+    public static DigitalKey restore(String code, String roomNumber, String reservationId,
+                                     LocalDateTime issuedAt, boolean active) {
+        DigitalKey key = new DigitalKey(code, roomNumber, reservationId, issuedAt);
+        key.active = active;
+        return key;
+    }
+
     /** Revoca la llave; a partir de ese momento no abre ninguna puerta. */
     public void revoke() {
         this.active = false;
