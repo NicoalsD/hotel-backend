@@ -6,8 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -48,6 +50,30 @@ public class GlobalExceptionHandler {
         if (message.isEmpty()) {
             message = DEFAULT_VALIDATION_MESSAGE;
         }
+        return build(HttpStatus.BAD_REQUEST.value(), message, request);
+    }
+
+    /**
+     * @param ex parámetro obligatorio ausente en la solicitud
+     * @param request solicitud que produjo el error
+     * @return respuesta 400 indicando el parámetro faltante
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponseDTO> handleMissingParameter(MissingServletRequestParameterException ex,
+                                                                   HttpServletRequest request) {
+        String message = "El parámetro obligatorio '" + ex.getParameterName() + "' no fue enviado";
+        return build(HttpStatus.BAD_REQUEST.value(), message, request);
+    }
+
+    /**
+     * @param ex parámetro con un tipo de valor no válido
+     * @param request solicitud que produjo el error
+     * @return respuesta 400 indicando el parámetro inválido
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTypeMismatch(MethodArgumentTypeMismatchException ex,
+                                                               HttpServletRequest request) {
+        String message = "El valor '" + ex.getValue() + "' no es válido para el parámetro '" + ex.getName() + "'";
         return build(HttpStatus.BAD_REQUEST.value(), message, request);
     }
 
