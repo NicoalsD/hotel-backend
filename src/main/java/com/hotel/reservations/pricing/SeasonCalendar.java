@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Component
@@ -19,6 +20,7 @@ public class SeasonCalendar {
     }
 
     public boolean isHighSeason(LocalDate date) {
+        Objects.requireNonNull(date, "La fecha es obligatoria");
         return HIGH_MONTHS.contains(date.getMonth());
     }
 }
