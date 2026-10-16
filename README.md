@@ -41,3 +41,15 @@ Repositorios en memoria + modelo de dominio
 - **Modelo y repositorios**: entidades (`Room`, `Reservation`, `Invoice`, ...) y almacenamiento en colecciones concurrentes.
 
 Detalle en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
+
+## Patrones de diseño
+
+| Patrón | Dónde | Propósito |
+|---|---|---|
+| **Facade** (obligatorio) | `HotelFacade` | Única entrada para el controlador; oculta los cinco subsistemas. |
+| **Strategy** | `PricingStrategy`, `HighSeasonPricingStrategy`, `LowSeasonPricingStrategy` | Calcular el precio de la noche según la temporada. |
+| **Factory** | `AdditionalServiceFactory` | Crear el servicio adicional correcto (`SpaService`, `BreakfastService`, `TransferService`). |
+| **Repository** | `RoomRepository`, `ReservationRepository`, `InvoiceRepository` y sus implementaciones en memoria | Aislar el almacenamiento en colecciones de Java. |
+| **DTO / Mapper** | paquetes `dto` y `mapper` | Separar el contrato JSON del modelo de dominio. |
+
+Detalle en [docs/PATRONES.md](docs/PATRONES.md).
