@@ -25,6 +25,10 @@ import java.util.Map;
 /**
  * Subsistema de facturación (FacturacionService). Construye las líneas de la factura a partir
  * de la cotización del hospedaje y de los servicios contratados.
+ * <p>
+ * Reglas: las noches del hospedaje se agrupan por temporada (una línea por temporada presente,
+ * en orden de primera noche); cada servicio adicional genera una línea propia; el IVA del 19%
+ * se aplica sobre el subtotal y lo calcula el modelo {@link Invoice}.
  */
 @Service
 public class BillingService {
