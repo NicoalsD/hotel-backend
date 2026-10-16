@@ -117,6 +117,19 @@ class HotelFacadeTest {
                 .isInstanceOf(com.hotel.reservations.exception.InvalidReservationStateException.class);
     }
 
+    @Test
+    void disponibilidadMarcaHabitacionOcupadaYTarifaEsPorNoche() {
+        facade.createReservation(request(7L, CHECK_IN, CHECK_OUT));
+
+        var availability = facade.checkAvailability(CHECK_IN, CHECK_OUT, RoomType.DOUBLE);
+        assertThat(availability).hasSize(1);
+        assertThat(availability.get(0).available()).isFalse();
+
+        var quote = facade.quotePrice(RoomType.DOUBLE, CHECK_IN, CHECK_OUT);
+        assertThat(quote.nights()).isEqualTo(3);
+        assertThat(quote.total()).isEqualByComparingTo("360.00");
+    }
+
     private static ReservationRequestDTO request(Long roomId, LocalDate checkIn, LocalDate checkOut) {
         return new ReservationRequestDTO(roomId, checkIn, checkOut,
                 new GuestDTO("Ana Pérez", "1020304050", "ana@correo.com", "3001234567"));
