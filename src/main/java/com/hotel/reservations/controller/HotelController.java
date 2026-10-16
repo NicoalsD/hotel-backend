@@ -173,4 +173,16 @@ public class HotelController {
     public InvoiceDTO checkOut(@PathVariable String reservaId) {
         return hotelFacade.performCheckOut(reservaId);
     }
+
+    /**
+     * Consulta la factura de una reserva ya finalizada.
+     *
+     * @param reservaId identificador de la reserva
+     * @return factura de la reserva
+     */
+    @GetMapping("/factura/{reservaId}")
+    @Operation(summary = "Consultar la factura de una reserva")
+    public InvoiceDTO factura(@PathVariable String reservaId) {
+        return hotelFacade.getInvoice(reservaId);
+    }
 }
