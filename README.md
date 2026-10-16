@@ -53,3 +53,19 @@ Detalle en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
 | **DTO / Mapper** | paquetes `dto` y `mapper` | Separar el contrato JSON del modelo de dominio. |
 
 Detalle en [docs/PATRONES.md](docs/PATRONES.md).
+
+## Equivalencias requisito -> clase
+
+Los nombres de los servicios y de los casos de uso se mantienen en español en los requisitos, y en inglés en el código.
+
+| Requisito (español) | Clase / método (código) |
+|---|---|
+| HabitacionService | `RoomService` |
+| TarifaService | `RateService` |
+| ServicioAdicionalService | `AdditionalServiceService` |
+| FacturacionService | `BillingService` |
+| AccesoService | `AccessService` |
+| crearReserva | `HotelFacade.createReservation` |
+| agregarServicio | `HotelFacade.addService` |
+| realizarCheckIn | `HotelFacade.performCheckIn` |
+| realizarCheckOut | `HotelFacade.performCheckOut` |
