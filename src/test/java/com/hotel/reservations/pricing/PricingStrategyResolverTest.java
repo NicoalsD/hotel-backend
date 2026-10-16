@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PricingStrategyResolverTest {
 
@@ -25,5 +26,19 @@ class PricingStrategyResolverTest {
 
         assertThat(reversed.resolve(Season.HIGH)).isSameAs(high);
         assertThat(reversed.resolve(Season.LOW)).isSameAs(low);
+    }
+
+    @Test
+    void failsWhenSeasonHasNoStrategy() {
+        PricingStrategyResolver onlyHigh = new PricingStrategyResolver(List.of(high));
+
+        assertThatThrownBy(() -> onlyHigh.resolve(Season.LOW))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("LOW");
+    }
+
+    @Test
+    void rejectsNullSeason() {
+        assertThatThrownBy(() -> resolver.resolve(null)).isInstanceOf(NullPointerException.class);
     }
 }
