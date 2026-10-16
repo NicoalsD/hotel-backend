@@ -1,5 +1,6 @@
 package com.hotel.reservations.service;
 
+import com.hotel.reservations.util.SequenceGenerator;
 import com.hotel.reservations.exception.InvalidReservationStateException;
 import com.hotel.reservations.factory.AdditionalServiceFactory;
 import com.hotel.reservations.model.AdditionalServiceType;
@@ -27,7 +28,7 @@ class AdditionalServiceServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new AdditionalServiceService(new AdditionalServiceFactory());
+        service = new AdditionalServiceService(new AdditionalServiceFactory(new SequenceGenerator()));
         Guest guest = new Guest("Ana Pérez", "1020304050", "ana@correo.com", "3001234567");
         Room room = new Room(7L, "201", RoomType.DOUBLE, 2, "Habitación doble");
         DateRange range = new DateRange(LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 4));

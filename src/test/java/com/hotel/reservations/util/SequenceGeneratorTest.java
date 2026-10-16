@@ -68,4 +68,37 @@ class SequenceGeneratorTest {
             executor.shutdownNow();
         }
     }
+
+    @Test
+    void advanceToMakesNextIdsFollowTheLastUsedNumbers() {
+        SequenceGenerator generator = new SequenceGenerator();
+
+        generator.advanceTo(1005L, 7L, 12L);
+
+        assertThat(generator.nextReservationId()).isEqualTo("RES-1006");
+        assertThat(generator.nextInvoiceNumber()).isEqualTo("FAC-0008");
+        assertThat(generator.nextServiceId()).isEqualTo("SRV-13");
+    }
+
+    @Test
+    void advanceToNeverMovesSequencesBackwards() {
+        SequenceGenerator generator = new SequenceGenerator();
+        generator.nextReservationId();
+        generator.nextReservationId();
+        generator.nextReservationId();
+
+        generator.advanceTo(1000L, 0L, 0L);
+
+        assertThat(generator.nextReservationId()).isEqualTo("RES-1004");
+    }
+
+    @Test
+    void advanceToWithZeroKeepsDefaultStart() {
+        SequenceGenerator generator = new SequenceGenerator();
+
+        generator.advanceTo(1000L, 0L, 0L);
+
+        assertThat(generator.nextInvoiceNumber()).isEqualTo("FAC-0001");
+        assertThat(generator.nextServiceId()).isEqualTo("SRV-1");
+    }
 }

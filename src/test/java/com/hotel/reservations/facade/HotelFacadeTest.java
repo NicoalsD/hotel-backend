@@ -64,7 +64,7 @@ class HotelFacadeTest {
         facade = new HotelFacade(
                 new RoomService(roomRepository, reservationRepository),
                 new RateService(seasonCalendar, resolver),
-                new AdditionalServiceService(new AdditionalServiceFactory()),
+                new AdditionalServiceService(new AdditionalServiceFactory(new SequenceGenerator())),
                 new BillingService(invoiceRepository, sequenceGenerator),
                 new AccessService(),
                 reservationRepository,

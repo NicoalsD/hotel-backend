@@ -36,12 +36,50 @@ public class Reservation {
      * @param roomTotal total del hospedaje calculado al reservar
      */
     public Reservation(String id, Guest guest, Room room, DateRange range, BigDecimal roomTotal) {
+        this(id, guest, room, range, roomTotal, LocalDateTime.now());
+    }
+
+    private Reservation(String id, Guest guest, Room room, DateRange range, BigDecimal roomTotal,
+                        LocalDateTime createdAt) {
         this.id = id;
         this.guest = guest;
         this.room = room;
         this.range = range;
         this.roomTotal = roomTotal;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = createdAt;
+    }
+
+    /**
+     * Reconstruye una reserva a partir de los datos persistidos, sin validar transiciones de estado.
+     * Solo debe usarse al cargar el estado desde la base de datos.
+     *
+     * @param id identificador de la reserva
+     * @param guest huésped titular
+     * @param room habitación reservada
+     * @param range fechas de la estancia
+     * @param roomTotal total del hospedaje
+     * @param createdAt momento de creación original
+     * @param status estado persistido
+     * @param services servicios persistidos, en orden de creación
+     * @param digitalKey llave digital persistida, o {@code null}
+     * @param invoiceNumber número de factura persistido, o {@code null}
+     * @param checkedInAt momento del check-in persistido, o {@code null}
+     * @param checkedOutAt momento del check-out persistido, o {@code null}
+     * @return reserva restaurada
+     */
+    public static Reservation restore(String id, Guest guest, Room room, DateRange range, BigDecimal roomTotal,
+                                      LocalDateTime createdAt, ReservationStatus status,
+                                      List<AdditionalService> services, DigitalKey digitalKey,
+                                      String invoiceNumber, LocalDateTime checkedInAt,
+                                      LocalDateTime checkedOutAt) {
+        Reservation reservation = new Reservation(id, guest, room, range, roomTotal, createdAt);
+        reservation.status = status;
+        reservation.services.addAll(services);
+        reservation.digitalKey = digitalKey;
+        reservation.invoiceNumber = invoiceNumber;
+        reservation.checkedInAt = checkedInAt;
+        reservation.checkedOutAt = checkedOutAt;
+        return reservation;
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.hotel.reservations.model;
 
+
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -41,5 +42,20 @@ class DigitalKeyTest {
 
         assertThat(key.isActive()).isFalse();
         assertThat(key.opens("201")).isFalse();
+    }
+
+    @Test
+    void restoreKeepsPersistedDataAndActiveFlag() {
+        LocalDateTime issuedAt = LocalDateTime.of(2026, 3, 1, 14, 0);
+
+        DigitalKey active = DigitalKey.restore("code-1", "101", "RES-1001", issuedAt, true);
+        DigitalKey revoked = DigitalKey.restore("code-2", "102", "RES-1002", issuedAt, false);
+
+        assertThat(active.getCode()).isEqualTo("code-1");
+        assertThat(active.getIssuedAt()).isEqualTo(issuedAt);
+        assertThat(active.isActive()).isTrue();
+        assertThat(active.opens("101")).isTrue();
+        assertThat(revoked.isActive()).isFalse();
+        assertThat(revoked.opens("102")).isFalse();
     }
 }
