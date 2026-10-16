@@ -107,4 +107,14 @@ public class RoomService {
         room.removeBooking(reservationId);
         room.markAvailable();
     }
+
+    /**
+     * Marca la habitación como ocupada al realizar el check-in.
+     *
+     * @param roomId identificador de la habitación
+     * @throws ResourceNotFoundException si la habitación no existe
+     */
+    public synchronized void occupyRoom(Long roomId) {
+        findById(roomId).markOccupied();
+    }
 }
