@@ -1,5 +1,6 @@
 package com.hotel.reservations.model;
 
+
 import com.hotel.reservations.exception.RoomNotAvailableException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -98,5 +99,15 @@ class RoomTest {
 
     private static DateRange range(int from, int to) {
         return new DateRange(LocalDate.of(2026, 11, from), LocalDate.of(2026, 11, to));
+    }
+
+    @Test
+    void restoreStatusSetsPersistedStatusWithoutChangingBookings() {
+        Room room = new Room(1L, "101", RoomType.SINGLE, 1, "Sencilla");
+
+        room.restoreStatus(RoomStatus.OCCUPIED);
+
+        assertThat(room.getStatus()).isEqualTo(RoomStatus.OCCUPIED);
+        assertThat(room.getBookings()).isEmpty();
     }
 }
