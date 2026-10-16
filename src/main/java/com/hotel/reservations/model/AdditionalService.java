@@ -13,7 +13,7 @@ public abstract class AdditionalService {
     private final String id;
     private final AdditionalServiceType type;
     private final int quantity;
-    private final LocalDateTime addedAt;
+    private LocalDateTime addedAt;
 
     /**
      * @param id identificador del servicio (por ejemplo "SRV-1")
@@ -54,6 +54,15 @@ public abstract class AdditionalService {
     /** @return momento en que se agregó el servicio */
     public LocalDateTime getAddedAt() {
         return addedAt;
+    }
+
+    /**
+     * Restaura el momento original en que se agregó el servicio. Solo para la carga desde persistencia.
+     *
+     * @param addedAt momento persistido de la adición
+     */
+    public void restoreAddedAt(LocalDateTime addedAt) {
+        this.addedAt = addedAt;
     }
 
     /** @return precio unitario según el catálogo */
