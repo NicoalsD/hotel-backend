@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AccessServiceTest {
 
@@ -77,5 +78,11 @@ class AccessServiceTest {
     @Test
     void nullKeyCodeIsNotValid() {
         assertThat(accessService.validateAccess(null, "201")).isFalse();
+    }
+
+    @Test
+    void rejectsNullReservation() {
+        assertThatThrownBy(() -> accessService.generateKey(null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> accessService.revokeKey(null)).isInstanceOf(NullPointerException.class);
     }
 }
