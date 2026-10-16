@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.hotel.reservations.dto.PriceQuoteDTO;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import java.util.List;
@@ -65,5 +66,22 @@ public class HotelController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
             @RequestParam(required = false) RoomType roomType) {
         return hotelFacade.checkAvailability(checkIn, checkOut, roomType);
+    }
+
+    /**
+     * Consulta la tarifa estimada noche a noche (vista previa de precio).
+     *
+     * @param roomType tipo de habitacion
+     * @param checkIn  fecha de llegada
+     * @param checkOut fecha de salida
+     * @return cotizacion detallada
+     */
+    @GetMapping("/tarifa")
+    @Operation(summary = "Consultar tarifa estimada para un tipo de habitacion y fechas")
+    public PriceQuoteDTO tarifa(
+            @RequestParam RoomType roomType,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut) {
+        return hotelFacade.quotePrice(roomType, checkIn, checkOut);
     }
 }
