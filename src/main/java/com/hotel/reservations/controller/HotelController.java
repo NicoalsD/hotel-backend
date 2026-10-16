@@ -7,6 +7,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
+import jakarta.validation.Valid;
+import com.hotel.reservations.dto.ReservationDTO;
+import com.hotel.reservations.dto.ReservationRequestDTO;
 
 /**
  * Controlador REST del hotel. Delega toda la logica en {@link HotelFacade}.
@@ -23,5 +29,18 @@ public class HotelController {
      */
     public HotelController(HotelFacade hotelFacade) {
         this.hotelFacade = hotelFacade;
+    }
+
+    /**
+     * Crea una reserva (caso de uso crearReserva).
+     *
+     * @param request datos de la reserva
+     * @return reserva creada
+     */
+    @PostMapping("/reservar")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Crear una reserva de habitacion")
+    public ReservationDTO reservar(@Valid @RequestBody ReservationRequestDTO request) {
+        return hotelFacade.createReservation(request);
     }
 }
