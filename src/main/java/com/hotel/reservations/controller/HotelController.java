@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.hotel.reservations.dto.RoomDTO;
 import com.hotel.reservations.dto.PriceQuoteDTO;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -83,5 +84,16 @@ public class HotelController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut) {
         return hotelFacade.quotePrice(roomType, checkIn, checkOut);
+    }
+
+    /**
+     * Lista las habitaciones del hotel.
+     *
+     * @return habitaciones
+     */
+    @GetMapping("/habitaciones")
+    @Operation(summary = "Listar todas las habitaciones del hotel")
+    public List<RoomDTO> habitaciones() {
+        return hotelFacade.listRooms();
     }
 }
