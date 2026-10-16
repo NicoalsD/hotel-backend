@@ -5,7 +5,11 @@ import com.hotel.reservations.model.RoomType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,6 +55,26 @@ class InMemoryRoomRepositoryTest {
     @Test
     void countReflectsSavedRooms() {
         assertThat(repository.count()).isEqualTo(4);
+    }
+
+    @Test
+    void concurrentSavesOfDistinctRoomsAreAllStored() throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        try {
+            List<Future<?>> futures = new ArrayList<>();
+            for (long id = 100; id < 300; id++) {
+                long roomId = id;
+                futures.add(executor.submit(() ->
+                        repository.save(new Room(roomId, "R" + roomId, RoomType.SINGLE, 1, "Prueba"))));
+            }
+            for (Future<?> future : futures) {
+                future.get();
+            }
+        } finally {
+            executor.shutdownNow();
+        }
+
+        assertThat(repository.count()).isEqualTo(204);
     }
 
     @Test
