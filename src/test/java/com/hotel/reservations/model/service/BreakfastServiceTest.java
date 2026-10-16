@@ -1,5 +1,7 @@
 package com.hotel.reservations.model.service;
 
+import com.hotel.reservations.model.AdditionalServiceType;
+import com.hotel.reservations.model.ChargeMode;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -22,5 +24,15 @@ class BreakfastServiceTest {
 
         assertThat(breakfast.getQuantity()).isEqualTo(1);
         assertThat(breakfast.getTotal()).isEqualTo(new BigDecimal("15.00"));
+    }
+
+    @Test
+    void exposesPerNightCatalogData() {
+        BreakfastService breakfast = new BreakfastService("SRV-2", 2);
+
+        assertThat(breakfast.getType()).isEqualTo(AdditionalServiceType.BREAKFAST);
+        assertThat(breakfast.getType().getChargeMode()).isEqualTo(ChargeMode.PER_NIGHT);
+        assertThat(breakfast.getLabel()).isEqualTo("Desayuno");
+        assertThat(breakfast.getUnitPrice()).isEqualTo(new BigDecimal("15.00"));
     }
 }
