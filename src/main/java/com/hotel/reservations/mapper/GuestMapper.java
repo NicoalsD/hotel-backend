@@ -17,4 +17,12 @@ public class GuestMapper {
     public GuestDTO toDto(Guest guest) {
         return new GuestDTO(guest.getFullName(), guest.getDocumentNumber(), guest.getEmail(), guest.getPhone());
     }
+
+    /**
+     * @param dto datos del huésped recibidos en la solicitud
+     * @return huésped del dominio con los mismos datos
+     */
+    public Guest toDomain(GuestDTO dto) {
+        return new Guest(dto.fullName(), dto.documentNumber(), dto.email(), dto.phone());
+    }
 }
