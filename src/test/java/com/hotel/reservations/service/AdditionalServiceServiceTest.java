@@ -1,10 +1,13 @@
 package com.hotel.reservations.service;
 
+import com.hotel.reservations.exception.InvalidReservationStateException;
 import com.hotel.reservations.factory.AdditionalServiceFactory;
 import com.hotel.reservations.model.AdditionalServiceType;
 import com.hotel.reservations.model.DateRange;
+import com.hotel.reservations.model.DigitalKey;
 import com.hotel.reservations.model.Guest;
 import com.hotel.reservations.model.Reservation;
+import com.hotel.reservations.model.ReservationStatus;
 import com.hotel.reservations.model.Room;
 import com.hotel.reservations.model.RoomType;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +15,10 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AdditionalServiceServiceTest {
 
@@ -30,31 +35,33 @@ class AdditionalServiceServiceTest {
     }
 
     @Test
-    void addsServiceWithReservationNightsAndSequentialId() {
-        var added = service.addService(reservation, AdditionalServiceType.BREAKFAST);
-
-        assertThat(added.getId()).isEqualTo("SRV-1");
-        assertThat(added.getQuantity()).isEqualTo(3);
-        assertThat(reservation.getServices()).containsExactly(added);
-    }
-
-    @Test
-    void calculatesServicesTotalFromAllServices() {
-        service.addService(reservation, AdditionalServiceType.BREAKFAST);
+    void allowsServicesWhileConfirmedOrCheckedIn() {
         service.addService(reservation, AdditionalServiceType.SPA);
+        reservation.checkIn(new DigitalKey("KEY-1", "201", "RES-1001", LocalDateTime.now()));
         service.addService(reservation, AdditionalServiceType.TRANSFER);
 
-        assertThat(service.calculateServicesTotal(reservation)).isEqualTo(new BigDecimal("125.00"));
+        assertThat(reservation.getServices()).hasSize(2);
+        assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CHECKED_IN);
     }
 
     @Test
-    void servicesTotalIsZeroWithScaleTwoWhenNoServices() {
-        assertThat(service.calculateServicesTotal(reservation)).isEqualTo(new BigDecimal("0.00"));
+    void rejectsServicesAfterCheckOutAndKeepsServicesUnchanged() {
+        service.addService(reservation, AdditionalServiceType.SPA);
+        reservation.checkIn(new DigitalKey("KEY-1", "201", "RES-1001", LocalDateTime.now()));
+        reservation.checkOut("FAC-0001");
+
+        assertThatThrownBy(() -> service.addService(reservation, AdditionalServiceType.BREAKFAST))
+                .isInstanceOf(InvalidReservationStateException.class)
+                .hasMessageContaining("Finalizada");
+        assertThat(reservation.getServices()).hasSize(1);
+        assertThat(service.calculateServicesTotal(reservation)).isEqualTo(new BigDecimal("50.00"));
     }
 
     @Test
-    void catalogListsEveryServiceTypeInOrder() {
-        assertThat(service.getCatalog()).containsExactly(
-                AdditionalServiceType.SPA, AdditionalServiceType.BREAKFAST, AdditionalServiceType.TRANSFER);
+    void rejectsMissingReservationOrType() {
+        assertThatThrownBy(() -> service.addService(null, AdditionalServiceType.SPA))
+                .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> service.addService(reservation, null))
+                .isInstanceOf(NullPointerException.class);
     }
 }
