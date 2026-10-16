@@ -32,4 +32,19 @@ public class SequenceGenerator {
     public String nextServiceId() {
         return "SRV-" + serviceSequence.getAndIncrement();
     }
+
+    /**
+     * Avanza cada secuencia para que el siguiente número generado sea posterior al último ya usado.
+     * Nunca retrocede: si una secuencia ya está más adelante, se conserva su valor.
+     * Se usa al cargar el estado desde la base de datos para no repetir identificadores.
+     *
+     * @param lastReservationNumber último número de reserva usado (por ejemplo 1005 para "RES-1005")
+     * @param lastInvoiceNumber último número de factura usado (por ejemplo 7 para "FAC-0007")
+     * @param lastServiceNumber último número de servicio usado (por ejemplo 12 para "SRV-12")
+     */
+    public void advanceTo(long lastReservationNumber, long lastInvoiceNumber, long lastServiceNumber) {
+        reservationSequence.accumulateAndGet(lastReservationNumber + 1, Math::max);
+        invoiceSequence.accumulateAndGet(lastInvoiceNumber + 1, Math::max);
+        serviceSequence.accumulateAndGet(lastServiceNumber + 1, Math::max);
+    }
 }
