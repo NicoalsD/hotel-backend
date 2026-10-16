@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 import com.hotel.reservations.dto.RoomDTO;
 import com.hotel.reservations.dto.PriceQuoteDTO;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -95,5 +96,17 @@ public class HotelController {
     @Operation(summary = "Listar todas las habitaciones del hotel")
     public List<RoomDTO> habitaciones() {
         return hotelFacade.listRooms();
+    }
+
+    /**
+     * Consulta una reserva por su identificador.
+     *
+     * @param reservaId identificador de la reserva
+     * @return reserva encontrada
+     */
+    @GetMapping("/reserva/{reservaId}")
+    @Operation(summary = "Consultar una reserva por su identificador")
+    public ReservationDTO reserva(@PathVariable String reservaId) {
+        return hotelFacade.getReservation(reservaId);
     }
 }
