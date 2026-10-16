@@ -69,3 +69,33 @@ Los nombres de los servicios y de los casos de uso se mantienen en español en l
 | agregarServicio | `HotelFacade.addService` |
 | realizarCheckIn | `HotelFacade.performCheckIn` |
 | realizarCheckOut | `HotelFacade.performCheckOut` |
+
+## Endpoints
+
+Base: `/api/hotel`. Detalle completo con ejemplos en [docs/API.md](docs/API.md).
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/disponibilidad?checkIn=&checkOut=&roomType=` | Habitaciones con bandera `available` y total estimado |
+| GET | `/tarifa?roomType=&checkIn=&checkOut=` | Vista previa de precio noche a noche |
+| GET | `/habitaciones` | Listado de las 16 habitaciones |
+| POST | `/reservar` | Crea una reserva (201) |
+| GET | `/reserva/{reservaId}` | Consulta una reserva |
+| GET | `/reservas` | Lista reservas, la más reciente primero |
+| POST | `/servicios/{reservaId}` | Agrega un servicio adicional |
+| GET | `/servicios/catalogo` | Catálogo de servicios adicionales |
+| PUT | `/checkin/{reservaId}` | Check-in y emisión de llave digital |
+| PUT | `/checkout/{reservaId}` | Check-out y generación de factura |
+| GET | `/factura/{reservaId}` | Factura de una reserva finalizada |
+
+## Reglas de negocio
+
+- **Temporada alta**: noches de junio, julio, diciembre y enero. Multiplicador 1.5 sobre el precio base.
+- **Temporada baja**: resto del año. Multiplicador 1.0.
+- **Precio por noche**: se calcula cada noche desde el check-in (incluido) hasta el check-out (excluido).
+- **Tipos de habitación**: Sencilla (80.00), Doble (120.00) y Suite (250.00).
+- **Servicios adicionales**: Spa (50.00, cobro fijo), Desayuno (15.00 por noche), Traslado (30.00, cobro fijo).
+- **IVA**: 19% sobre el subtotal de habitaciones y servicios.
+- **Disponibilidad**: una habitación está ocupada si tiene una reserva CONFIRMADA o con check-in que se traslape con el rango.
+
+Detalle en [docs/REGLAS_NEGOCIO.md](docs/REGLAS_NEGOCIO.md).
