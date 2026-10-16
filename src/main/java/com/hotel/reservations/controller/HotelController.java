@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.hotel.reservations.dto.ServiceCatalogItemDTO;
 import com.hotel.reservations.dto.ServiceRequestDTO;
 import org.springframework.web.bind.annotation.PathVariable;
 import com.hotel.reservations.dto.RoomDTO;
@@ -134,5 +135,16 @@ public class HotelController {
     public ReservationDTO agregarServicio(@PathVariable String reservaId,
                                           @Valid @RequestBody ServiceRequestDTO request) {
         return hotelFacade.addService(reservaId, request.serviceType());
+    }
+
+    /**
+     * Lista el catalogo de servicios adicionales.
+     *
+     * @return catalogo de servicios
+     */
+    @GetMapping("/servicios/catalogo")
+    @Operation(summary = "Consultar el catalogo de servicios adicionales")
+    public List<ServiceCatalogItemDTO> catalogo() {
+        return hotelFacade.getServiceCatalog();
     }
 }
