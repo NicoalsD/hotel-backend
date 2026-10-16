@@ -4,6 +4,9 @@ import com.hotel.reservations.dto.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -63,5 +66,37 @@ class GlobalExceptionHandlerTest {
         assertThat(state.getStatusCode().value()).isEqualTo(409);
         assertThat(dates.getStatusCode().value()).isEqualTo(400);
         assertThat(dates.getBody().error()).isEqualTo("Bad Request");
+    }
+
+    private MethodArgumentNotValidException validationError(FieldError... errors) {
+        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "request");
+        for (FieldError error : errors) {
+            bindingResult.addError(error);
+        }
+        MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
+        when(ex.getBindingResult()).thenReturn(bindingResult);
+        return ex;
+    }
+
+    @Test
+    void erroresDeValidacionSeUnenEnEspanolEnOrdenDeterminista() {
+        MethodArgumentNotValidException ex = validationError(
+                new FieldError("request", "roomId", "El identificador de la habitación es obligatorio"),
+                new FieldError("request", "guest.email", "El correo electrónico no es válido"));
+
+        ResponseEntity<ErrorResponseDTO> response = handler.handleValidation(ex, request(PATH));
+
+        assertThat(response.getStatusCode().value()).isEqualTo(400);
+        assertThat(response.getBody().error()).isEqualTo("Bad Request");
+        assertThat(response.getBody().message()).isEqualTo(
+                "El correo electrónico no es válido; El identificador de la habitación es obligatorio");
+    }
+
+    @Test
+    void validacionSinMensajesUsaMensajePorDefecto() {
+        ResponseEntity<ErrorResponseDTO> response = handler.handleValidation(validationError(), request(PATH));
+
+        assertThat(response.getStatusCode().value()).isEqualTo(400);
+        assertThat(response.getBody().message()).isEqualTo("Los datos enviados no son válidos");
     }
 }
