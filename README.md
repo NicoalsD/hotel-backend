@@ -21,3 +21,23 @@ Backend del sistema de reservas de un hotel. Permite consultar disponibilidad y 
 - **Maven** con el wrapper `./mvnw`
 - **springdoc / Swagger UI** (planificado): documentación interactiva de la API en `/swagger-ui.html`. Aún no está incluido en el `pom.xml` de esta rama.
 - **JUnit 5 y AssertJ** para las pruebas unitarias
+
+## Arquitectura por capas
+
+```
+Controlador REST (HotelController)         -> solo conoce la fachada
+        |
+Fachada (HotelFacade)                      -> punto de entrada único a los subsistemas
+        |
+Servicios (RoomService, RateService, AdditionalServiceService,
+           BillingService, AccessService)  -> lógica de negocio
+        |
+Repositorios en memoria + modelo de dominio
+```
+
+- **Controlador**: recibe y responde HTTP, valida DTOs de entrada.
+- **Fachada**: orquesta los subsistemas para cada caso de uso (crear reserva, check-in, check-out, etc.).
+- **Servicios**: cada uno encapsula un subsistema.
+- **Modelo y repositorios**: entidades (`Room`, `Reservation`, `Invoice`, ...) y almacenamiento en colecciones concurrentes.
+
+Detalle en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
