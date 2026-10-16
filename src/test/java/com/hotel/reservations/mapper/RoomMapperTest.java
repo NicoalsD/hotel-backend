@@ -3,10 +3,12 @@ package com.hotel.reservations.mapper;
 import com.hotel.reservations.dto.RoomAvailabilityDTO;
 import com.hotel.reservations.dto.RoomDTO;
 import com.hotel.reservations.model.DateRange;
+import com.hotel.reservations.model.NightlyRate;
 import com.hotel.reservations.model.PriceQuote;
 import com.hotel.reservations.model.Room;
 import com.hotel.reservations.model.RoomStatus;
 import com.hotel.reservations.model.RoomType;
+import com.hotel.reservations.model.Season;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -71,12 +73,12 @@ class RoomMapperTest {
         Room room = new Room(8L, "202", RoomType.DOUBLE, 2, "Habitación doble");
         DateRange range = new DateRange(LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 4));
         PriceQuote quote = new PriceQuote(RoomType.DOUBLE, range, List.of(
-                new com.hotel.reservations.model.NightlyRate(LocalDate.of(2026, 11, 1),
-                        com.hotel.reservations.model.Season.LOW, new BigDecimal("120.00")),
-                new com.hotel.reservations.model.NightlyRate(LocalDate.of(2026, 11, 2),
-                        com.hotel.reservations.model.Season.LOW, new BigDecimal("120.00")),
-                new com.hotel.reservations.model.NightlyRate(LocalDate.of(2026, 11, 3),
-                        com.hotel.reservations.model.Season.LOW, new BigDecimal("120.00"))));
+                new NightlyRate(LocalDate.of(2026, 11, 1),
+                        Season.LOW, new BigDecimal("120.00")),
+                new NightlyRate(LocalDate.of(2026, 11, 2),
+                        Season.LOW, new BigDecimal("120.00")),
+                new NightlyRate(LocalDate.of(2026, 11, 3),
+                        Season.LOW, new BigDecimal("120.00"))));
 
         RoomAvailabilityDTO dto = mapper.toAvailabilityDto(room, false, quote);
 

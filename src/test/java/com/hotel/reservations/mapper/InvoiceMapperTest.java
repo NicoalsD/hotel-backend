@@ -2,6 +2,7 @@ package com.hotel.reservations.mapper;
 
 import com.hotel.reservations.dto.InvoiceDTO;
 import com.hotel.reservations.dto.InvoiceLineDTO;
+import com.hotel.reservations.model.AdditionalServiceType;
 import com.hotel.reservations.model.DateRange;
 import com.hotel.reservations.model.DigitalKey;
 import com.hotel.reservations.model.Guest;
@@ -12,7 +13,6 @@ import com.hotel.reservations.model.Reservation;
 import com.hotel.reservations.model.Room;
 import com.hotel.reservations.model.RoomType;
 import com.hotel.reservations.support.StubAdditionalService;
-import com.hotel.reservations.model.AdditionalServiceType;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
