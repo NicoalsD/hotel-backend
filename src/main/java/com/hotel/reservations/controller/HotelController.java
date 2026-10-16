@@ -1,0 +1,188 @@
+package com.hotel.reservations.controller;
+
+import com.hotel.reservations.facade.HotelFacade;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import com.hotel.reservations.dto.InvoiceDTO;
+import org.springframework.web.bind.annotation.PutMapping;
+import com.hotel.reservations.dto.ServiceCatalogItemDTO;
+import com.hotel.reservations.dto.ServiceRequestDTO;
+import org.springframework.web.bind.annotation.PathVariable;
+import com.hotel.reservations.dto.RoomDTO;
+import com.hotel.reservations.dto.PriceQuoteDTO;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.GetMapping;
+import java.util.List;
+import java.time.LocalDate;
+import com.hotel.reservations.model.RoomType;
+import com.hotel.reservations.dto.RoomAvailabilityDTO;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
+import jakarta.validation.Valid;
+import com.hotel.reservations.dto.ReservationDTO;
+import com.hotel.reservations.dto.ReservationRequestDTO;
+
+/**
+ * Controlador REST del hotel. Delega toda la logica en {@link HotelFacade}.
+ */
+@RestController
+@RequestMapping("/api/hotel")
+@Tag(name = "Hotel", description = "Operaciones de reservas, servicios, check-in, check-out y facturacion")
+public class HotelController {
+
+    private final HotelFacade hotelFacade;
+
+    /**
+     * @param hotelFacade fachada del sistema de reservas
+     */
+    public HotelController(HotelFacade hotelFacade) {
+        this.hotelFacade = hotelFacade;
+    }
+
+    /**
+     * Crea una reserva (caso de uso crearReserva).
+     *
+     * @param request datos de la reserva
+     * @return reserva creada
+     */
+    @PostMapping("/reservar")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Crear una reserva de habitacion")
+    public ReservationDTO reservar(@Valid @RequestBody ReservationRequestDTO request) {
+        return hotelFacade.createReservation(request);
+    }
+
+    /**
+     * Consulta la disponibilidad de habitaciones (caso de uso de consulta de disponibilidad).
+     *
+     * @param checkIn  fecha de llegada
+     * @param checkOut fecha de salida
+     * @param roomType tipo de habitacion opcional
+     * @return habitaciones con su disponibilidad
+     */
+    @GetMapping("/disponibilidad")
+    @Operation(summary = "Consultar disponibilidad de habitaciones por fechas")
+    public List<RoomAvailabilityDTO> disponibilidad(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
+            @RequestParam(required = false) RoomType roomType) {
+        return hotelFacade.checkAvailability(checkIn, checkOut, roomType);
+    }
+
+    /**
+     * Consulta la tarifa estimada noche a noche (vista previa de precio).
+     *
+     * @param roomType tipo de habitacion
+     * @param checkIn  fecha de llegada
+     * @param checkOut fecha de salida
+     * @return cotizacion detallada
+     */
+    @GetMapping("/tarifa")
+    @Operation(summary = "Consultar tarifa estimada para un tipo de habitacion y fechas")
+    public PriceQuoteDTO tarifa(
+            @RequestParam RoomType roomType,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut) {
+        return hotelFacade.quotePrice(roomType, checkIn, checkOut);
+    }
+
+    /**
+     * Lista las habitaciones del hotel.
+     *
+     * @return habitaciones
+     */
+    @GetMapping("/habitaciones")
+    @Operation(summary = "Listar todas las habitaciones del hotel")
+    public List<RoomDTO> habitaciones() {
+        return hotelFacade.listRooms();
+    }
+
+    /**
+     * Consulta una reserva por su identificador.
+     *
+     * @param reservaId identificador de la reserva
+     * @return reserva encontrada
+     */
+    @GetMapping("/reserva/{reservaId}")
+    @Operation(summary = "Consultar una reserva por su identificador")
+    public ReservationDTO reserva(@PathVariable String reservaId) {
+        return hotelFacade.getReservation(reservaId);
+    }
+
+    /**
+     * Lista todas las reservas, de la mas reciente a la mas antigua.
+     *
+     * @return reservas
+     */
+    @GetMapping("/reservas")
+    @Operation(summary = "Listar todas las reservas")
+    public List<ReservationDTO> reservas() {
+        return hotelFacade.listReservations();
+    }
+
+    /**
+     * Agrega un servicio adicional a una reserva (caso de uso agregarServicio).
+     *
+     * @param reservaId identificador de la reserva
+     * @param request   tipo de servicio a agregar
+     * @return reserva actualizada
+     */
+    @PostMapping("/servicios/{reservaId}")
+    @Operation(summary = "Agregar un servicio adicional a una reserva")
+    public ReservationDTO agregarServicio(@PathVariable String reservaId,
+                                          @Valid @RequestBody ServiceRequestDTO request) {
+        return hotelFacade.addService(reservaId, request.serviceType());
+    }
+
+    /**
+     * Lista el catalogo de servicios adicionales.
+     *
+     * @return catalogo de servicios
+     */
+    @GetMapping("/servicios/catalogo")
+    @Operation(summary = "Consultar el catalogo de servicios adicionales")
+    public List<ServiceCatalogItemDTO> catalogo() {
+        return hotelFacade.getServiceCatalog();
+    }
+
+    /**
+     * Realiza el check-in de una reserva (caso de uso realizarCheckIn).
+     *
+     * @param reservaId identificador de la reserva
+     * @return reserva con check-in realizado
+     */
+    @PutMapping("/checkin/{reservaId}")
+    @Operation(summary = "Realizar el check-in de una reserva")
+    public ReservationDTO checkIn(@PathVariable String reservaId) {
+        return hotelFacade.performCheckIn(reservaId);
+    }
+
+    /**
+     * Realiza el check-out de una reserva y emite la factura (caso de uso realizarCheckOut).
+     *
+     * @param reservaId identificador de la reserva
+     * @return factura emitida
+     */
+    @PutMapping("/checkout/{reservaId}")
+    @Operation(summary = "Realizar el check-out de una reserva y emitir la factura")
+    public InvoiceDTO checkOut(@PathVariable String reservaId) {
+        return hotelFacade.performCheckOut(reservaId);
+    }
+
+    /**
+     * Consulta la factura de una reserva ya finalizada.
+     *
+     * @param reservaId identificador de la reserva
+     * @return factura de la reserva
+     */
+    @GetMapping("/factura/{reservaId}")
+    @Operation(summary = "Consultar la factura de una reserva")
+    public InvoiceDTO factura(@PathVariable String reservaId) {
+        return hotelFacade.getInvoice(reservaId);
+    }
+}
