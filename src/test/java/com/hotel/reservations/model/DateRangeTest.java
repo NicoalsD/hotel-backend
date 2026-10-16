@@ -4,7 +4,6 @@ import com.hotel.reservations.exception.InvalidDateRangeException;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -75,6 +74,5 @@ class DateRangeTest {
         assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
         assertThat(a).isNotEqualTo(c);
         assertThat(a.toString()).isEqualTo("2026-11-01/2026-11-04");
-        assertThat(List.of(a)).contains(b);
     }
 }
