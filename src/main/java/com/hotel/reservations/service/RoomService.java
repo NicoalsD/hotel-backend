@@ -106,6 +106,7 @@ public class RoomService {
         Room room = findById(roomId);
         room.removeBooking(reservationId);
         room.markAvailable();
+        roomRepository.save(room);
     }
 
     /**
@@ -115,6 +116,8 @@ public class RoomService {
      * @throws ResourceNotFoundException si la habitación no existe
      */
     public synchronized void occupyRoom(Long roomId) {
-        findById(roomId).markOccupied();
+        Room room = findById(roomId);
+        room.markOccupied();
+        roomRepository.save(room);
     }
 }
