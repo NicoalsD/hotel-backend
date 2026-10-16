@@ -12,6 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -129,6 +135,41 @@ class RoomServiceTest {
         service.occupyRoom(7L);
 
         assertThat(service.findById(7L).getStatus()).isEqualTo(RoomStatus.OCCUPIED);
+    }
+
+    @Test
+    void concurrentReservationsOfSameRoomAcceptExactlyOne() throws Exception {
+        DateRange sameRange = range("2026-11-01", "2026-11-04");
+        int attempts = 16;
+        ExecutorService executor = Executors.newFixedThreadPool(attempts);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<Boolean>> results = new ArrayList<>();
+        try {
+            for (int i = 0; i < attempts; i++) {
+                String reservationId = "RES-" + (1001 + i);
+                results.add(executor.submit(() -> {
+                    start.await();
+                    try {
+                        service.reserveRoom(7L, reservationId, sameRange);
+                        return true;
+                    } catch (RoomNotAvailableException ex) {
+                        return false;
+                    }
+                }));
+            }
+            start.countDown();
+
+            long accepted = 0;
+            for (Future<Boolean> result : results) {
+                if (result.get()) {
+                    accepted++;
+                }
+            }
+            assertThat(accepted).isEqualTo(1);
+            assertThat(service.isRoomAvailable(7L, sameRange)).isFalse();
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
     @Test
