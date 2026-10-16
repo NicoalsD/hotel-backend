@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.hotel.reservations.dto.InvoiceDTO;
 import org.springframework.web.bind.annotation.PutMapping;
 import com.hotel.reservations.dto.ServiceCatalogItemDTO;
 import com.hotel.reservations.dto.ServiceRequestDTO;
@@ -159,5 +160,17 @@ public class HotelController {
     @Operation(summary = "Realizar el check-in de una reserva")
     public ReservationDTO checkIn(@PathVariable String reservaId) {
         return hotelFacade.performCheckIn(reservaId);
+    }
+
+    /**
+     * Realiza el check-out de una reserva y emite la factura (caso de uso realizarCheckOut).
+     *
+     * @param reservaId identificador de la reserva
+     * @return factura emitida
+     */
+    @PutMapping("/checkout/{reservaId}")
+    @Operation(summary = "Realizar el check-out de una reserva y emitir la factura")
+    public InvoiceDTO checkOut(@PathVariable String reservaId) {
+        return hotelFacade.performCheckOut(reservaId);
     }
 }
