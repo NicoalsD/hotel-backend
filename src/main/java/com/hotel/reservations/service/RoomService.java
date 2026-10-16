@@ -81,4 +81,30 @@ public class RoomService {
                 .filter(room -> room.isAvailableFor(range))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Registra una reserva sobre una habitación. El modelo valida el solapamiento.
+     *
+     * @param roomId identificador de la habitación
+     * @param reservationId identificador de la reserva
+     * @param range rango de fechas reservado
+     * @throws ResourceNotFoundException si la habitación no existe
+     * @throws com.hotel.reservations.exception.RoomNotAvailableException si la habitación ya está reservada
+     */
+    public synchronized void reserveRoom(Long roomId, String reservationId, DateRange range) {
+        findById(roomId).addBooking(reservationId, range);
+    }
+
+    /**
+     * Libera una reserva de la habitación y la marca como disponible.
+     *
+     * @param roomId identificador de la habitación
+     * @param reservationId identificador de la reserva a liberar
+     * @throws ResourceNotFoundException si la habitación no existe
+     */
+    public synchronized void releaseRoom(Long roomId, String reservationId) {
+        Room room = findById(roomId);
+        room.removeBooking(reservationId);
+        room.markAvailable();
+    }
 }
