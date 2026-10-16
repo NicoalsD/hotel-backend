@@ -1,6 +1,7 @@
 package com.hotel.reservations.repository;
 
 import com.hotel.reservations.model.Invoice;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.Comparator;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  * Repositorio de facturas en memoria, indexado por número de factura.
  */
 @Repository
+@Profile("!postgres")
 public class InMemoryInvoiceRepository implements InvoiceRepository {
 
     private final Map<String, Invoice> invoices = new ConcurrentHashMap<>();

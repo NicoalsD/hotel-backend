@@ -1,6 +1,7 @@
 package com.hotel.reservations.repository;
 
 import com.hotel.reservations.model.Reservation;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.Comparator;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * tienen la misma fecha de creación, se desempata por identificador descendente.
  */
 @Repository
+@Profile("!postgres")
 public class InMemoryReservationRepository implements ReservationRepository {
 
     private static final Comparator<Reservation> NEWEST_FIRST = Comparator

@@ -2,6 +2,7 @@ package com.hotel.reservations.repository;
 
 import com.hotel.reservations.model.Room;
 import com.hotel.reservations.model.RoomType;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.Comparator;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
  * Repositorio de habitaciones en memoria, respaldado por un {@link ConcurrentHashMap}.
  */
 @Repository
+@Profile("!postgres")
 public class InMemoryRoomRepository implements RoomRepository {
 
     private final Map<Long, Room> rooms = new ConcurrentHashMap<>();
