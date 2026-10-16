@@ -1,5 +1,6 @@
 package com.hotel.reservations.service;
 
+import com.hotel.reservations.model.AdditionalService;
 import com.hotel.reservations.model.InvoiceLine;
 import com.hotel.reservations.model.InvoiceLineCategory;
 import com.hotel.reservations.model.NightlyRate;
@@ -49,7 +50,15 @@ public class BillingService {
      * @return líneas de la factura, sin persistir nada
      */
     public List<InvoiceLine> buildLines(Reservation reservation, PriceQuote roomQuote) {
-        return new ArrayList<>(buildRoomLines(reservation, roomQuote));
+        List<InvoiceLine> lines = new ArrayList<>(buildRoomLines(reservation, roomQuote));
+        for (AdditionalService service : reservation.getServices()) {
+            lines.add(new InvoiceLine(
+                    service.getLabel(),
+                    InvoiceLineCategory.SERVICE,
+                    service.getQuantity(),
+                    service.getUnitPrice().setScale(2, RoundingMode.HALF_UP)));
+        }
+        return lines;
     }
 
     private List<InvoiceLine> buildRoomLines(Reservation reservation, PriceQuote roomQuote) {
