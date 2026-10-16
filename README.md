@@ -99,3 +99,26 @@ Base: `/api/hotel`. Detalle completo con ejemplos en [docs/API.md](docs/API.md).
 - **Disponibilidad**: una habitación está ocupada si tiene una reserva CONFIRMADA o con check-in que se traslape con el rango.
 
 Detalle en [docs/REGLAS_NEGOCIO.md](docs/REGLAS_NEGOCIO.md).
+
+## Cómo ejecutar y probar
+
+Requisitos: JDK 17. El proyecto incluye el wrapper de Maven, no hace falta instalarlo.
+
+```bash
+# Ejecutar en local (http://localhost:8080)
+./mvnw spring-boot:run
+
+# Compilar y ejecutar todas las pruebas
+./mvnw -B verify
+
+# Ejemplo: consultar el catálogo de servicios
+curl http://localhost:8080/api/hotel/servicios/catalogo
+```
+
+El puerto se configura con la variable `PORT` y los orígenes CORS permitidos con `CORS_ALLOWED_ORIGINS`.
+
+## Despliegue en AWS Elastic Beanstalk
+
+- URL de producción: http://hotel-backend-grupo.us-east-1.elasticbeanstalk.com
+- Documentación Swagger (cuando esté habilitada): http://hotel-backend-grupo.us-east-1.elasticbeanstalk.com/swagger-ui.html
+- Plantilla de infraestructura: [infra/cloudformation.json](infra/cloudformation.json). Pasos en [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md).
