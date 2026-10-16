@@ -1,6 +1,7 @@
 package com.hotel.reservations.service;
 
 import com.hotel.reservations.exception.ResourceNotFoundException;
+import com.hotel.reservations.model.DateRange;
 import com.hotel.reservations.model.Room;
 import com.hotel.reservations.model.RoomType;
 import com.hotel.reservations.repository.ReservationRepository;
@@ -8,6 +9,7 @@ import com.hotel.reservations.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Subsistema de habitaciones (HabitacionService): consulta, reserva y liberación de habitaciones.
@@ -53,5 +55,30 @@ public class RoomService {
             return roomRepository.findAll();
         }
         return roomRepository.findByType(typeOrNull);
+    }
+
+    /**
+     * Indica si una habitación puede reservarse en el rango dado.
+     *
+     * @param roomId identificador de la habitación
+     * @param range rango de fechas solicitado
+     * @return {@code true} si no hay reservas que se solapen con el rango
+     * @throws ResourceNotFoundException si la habitación no existe
+     */
+    public synchronized boolean isRoomAvailable(Long roomId, DateRange range) {
+        return findById(roomId).isAvailableFor(range);
+    }
+
+    /**
+     * Devuelve las habitaciones disponibles en el rango dado, opcionalmente filtradas por tipo.
+     *
+     * @param range rango de fechas solicitado
+     * @param typeOrNull tipo de habitación, o {@code null} para todos
+     * @return habitaciones libres ordenadas por identificador
+     */
+    public synchronized List<Room> findAvailableRooms(DateRange range, RoomType typeOrNull) {
+        return findByType(typeOrNull).stream()
+                .filter(room -> room.isAvailableFor(range))
+                .collect(Collectors.toList());
     }
 }
