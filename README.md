@@ -122,3 +122,11 @@ El puerto se configura con la variable `PORT` y los orígenes CORS permitidos co
 - URL de producción: http://hotel-backend-grupo.us-east-1.elasticbeanstalk.com
 - Documentación Swagger (cuando esté habilitada): http://hotel-backend-grupo.us-east-1.elasticbeanstalk.com/swagger-ui.html
 - Plantilla de infraestructura: [infra/cloudformation.json](infra/cloudformation.json). Pasos en [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md).
+
+## Integrantes
+
+| Integrante | Responsabilidades |
+|---|---|
+| **NicoalsD** | Modelo de dominio, repositorios en memoria, servicio de habitaciones (`RoomService`), servicio de facturación (`BillingService`). |
+| **santhiagoxinge** | Tarifas con Strategy (`RateService`, `PricingStrategy`), servicios adicionales con Factory (`AdditionalServiceService`), llaves digitales (`AccessService`), documentación. |
+| **VictorAguilar202** | DTOs, mappers, manejo de errores, configuración de CORS, `HotelFacade`, controlador REST y Swagger. |
