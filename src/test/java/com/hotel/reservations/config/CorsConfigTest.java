@@ -4,14 +4,23 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CorsConfigTest {
 
+    /** Expone el mapa de configuraciones, que en CorsRegistry es protegido. */
+    private static class InspectableCorsRegistry extends CorsRegistry {
+        Map<String, CorsConfiguration> configurations() {
+            return getCorsConfigurations();
+        }
+    }
+
     private CorsConfiguration apiCorsConfiguration(String origins) {
-        CorsRegistry registry = new CorsRegistry();
+        InspectableCorsRegistry registry = new InspectableCorsRegistry();
         new CorsConfig(origins).addCorsMappings(registry);
-        return registry.getCorsConfigurations().get("/api/**");
+        return registry.configurations().get("/api/**");
     }
 
     @Test
