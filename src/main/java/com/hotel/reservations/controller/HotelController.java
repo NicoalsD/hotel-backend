@@ -7,6 +7,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.GetMapping;
+import java.util.List;
+import java.time.LocalDate;
+import com.hotel.reservations.model.RoomType;
+import com.hotel.reservations.dto.RoomAvailabilityDTO;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,5 +48,22 @@ public class HotelController {
     @Operation(summary = "Crear una reserva de habitacion")
     public ReservationDTO reservar(@Valid @RequestBody ReservationRequestDTO request) {
         return hotelFacade.createReservation(request);
+    }
+
+    /**
+     * Consulta la disponibilidad de habitaciones (caso de uso de consulta de disponibilidad).
+     *
+     * @param checkIn  fecha de llegada
+     * @param checkOut fecha de salida
+     * @param roomType tipo de habitacion opcional
+     * @return habitaciones con su disponibilidad
+     */
+    @GetMapping("/disponibilidad")
+    @Operation(summary = "Consultar disponibilidad de habitaciones por fechas")
+    public List<RoomAvailabilityDTO> disponibilidad(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
+            @RequestParam(required = false) RoomType roomType) {
+        return hotelFacade.checkAvailability(checkIn, checkOut, roomType);
     }
 }
