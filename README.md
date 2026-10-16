@@ -12,14 +12,14 @@ El servidor queda disponible en `http://localhost:8080`.
 
 ## Descripción
 
-Backend del sistema de reservas de un hotel. Permite consultar disponibilidad y tarifas por temporada, crear reservas, agregar servicios adicionales (spa, desayuno, traslado), realizar el check-in con llave digital, y el check-out con generación de factura con IVA. Toda la información vive en memoria; no hay base de datos.
+Backend del sistema de reservas de un hotel. Permite consultar disponibilidad y tarifas por temporada, crear reservas, agregar servicios adicionales (spa, desayuno, traslado), realizar el check-in con llave digital, y el check-out con generación de factura con IVA. La información de trabajo vive en colecciones de Java; en producción se persiste en PostgreSQL (Neon), ver la sección [Persistencia en PostgreSQL (Neon)](#persistencia-en-postgresql-neon).
 
 ## Tecnologías
 
 - **Java 17**
 - **Spring Boot 4.0.8** (starter web MVC, validation y actuator)
 - **Maven** con el wrapper `./mvnw`
-- **springdoc / Swagger UI** (planificado): documentación interactiva de la API en `/swagger-ui.html`. Aún no está incluido en el `pom.xml` de esta rama.
+- **springdoc / Swagger UI**: documentación interactiva de la API disponible en `/swagger-ui.html`.
 - **JUnit 5 y AssertJ** para las pruebas unitarias
 
 ## Arquitectura por capas
@@ -117,10 +117,46 @@ curl http://localhost:8080/api/hotel/servicios/catalogo
 
 El puerto se configura con la variable `PORT` y los orígenes CORS permitidos con `CORS_ALLOWED_ORIGINS`.
 
+## Persistencia en PostgreSQL (Neon)
+
+La aplicación tiene dos modos de almacenamiento, elegidos por el perfil de Spring:
+
+| Perfil | Activación | Almacenamiento |
+|---|---|---|
+| Por defecto | Sin configuración adicional | Solo en memoria (repositorios `InMemory*`). No necesita base de datos. |
+| `postgres` | `SPRING_PROFILES_ACTIVE=postgres` | PostgreSQL (Neon), con los repositorios `Postgres*` del paquete `repository.postgres`. |
+
+Variables de entorno que espera el perfil `postgres`:
+
+| Variable | Descripción |
+|---|---|
+| `SPRING_PROFILES_ACTIVE` | Debe valer `postgres` para activar la persistencia. |
+| `SPRING_DATASOURCE_URL` | URL JDBC de la base de datos, por ejemplo `jdbc:postgresql://<host>/<base>?sslmode=require`. |
+| `SPRING_DATASOURCE_USERNAME` | Usuario de la base de datos. |
+| `SPRING_DATASOURCE_PASSWORD` | Contraseña del usuario. Nunca se escribe en el repositorio. |
+
+Ejemplo de ejecución local contra una base de datos propia (los valores son marcadores, no credenciales reales):
+
+```bash
+export SPRING_PROFILES_ACTIVE=postgres
+export SPRING_DATASOURCE_URL='jdbc:postgresql://<host>/<base>?sslmode=require'
+export SPRING_DATASOURCE_USERNAME='<usuario>'
+export SPRING_DATASOURCE_PASSWORD='<contraseña>'
+./mvnw spring-boot:run
+```
+
+Comportamiento del perfil `postgres`:
+
+- **Esquema**: `schema-postgres.sql` se ejecuta al arrancar con `CREATE TABLE IF NOT EXISTS`, así que es idempotente.
+- **Carga al arrancar**: `DatabaseStateLoader` lee habitaciones, reservas (con servicios y llaves) y facturas, y reconstruye las reservas activas en cada habitación. Después avanza los generadores de identificadores para no repetir números. `RoomSeeder` solo siembra las 16 habitaciones si la tabla `rooms` está vacía.
+- **Las colecciones en memoria siguen siendo el estado de trabajo**: las consultas se atienden desde las colecciones concurrentes (caché de escritura directa, *write-through*). Cada `save(...)` escribe también en PostgreSQL mediante un UPSERT con `JdbcTemplate`, de modo que los datos sobreviven a reinicios.
+
+Sin las variables de entorno, el perfil `postgres` no arranca; el perfil por defecto no requiere ninguna de ellas.
+
 ## Despliegue en AWS Elastic Beanstalk
 
 - URL de producción: http://hotel-backend-grupo.us-east-1.elasticbeanstalk.com
-- Documentación Swagger (cuando esté habilitada): http://hotel-backend-grupo.us-east-1.elasticbeanstalk.com/swagger-ui.html
+- Documentación Swagger UI: http://hotel-backend-grupo.us-east-1.elasticbeanstalk.com/swagger-ui.html
 - Plantilla de infraestructura: [infra/cloudformation.json](infra/cloudformation.json). Pasos en [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md).
 
 ## Integrantes
