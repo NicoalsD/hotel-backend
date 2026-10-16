@@ -131,6 +131,26 @@ class RoomServiceTest {
     }
 
     @Test
+    void bookingsOfDifferentRoomsDoNotInterfere() {
+        service.reserveRoom(7L, "RES-1001", range("2026-11-01", "2026-11-04"));
+
+        service.reserveRoom(8L, "RES-1002", range("2026-11-01", "2026-11-04"));
+
+        assertThat(service.isRoomAvailable(7L, range("2026-11-02", "2026-11-03"))).isFalse();
+        assertThat(service.isRoomAvailable(8L, range("2026-11-02", "2026-11-03"))).isFalse();
+        assertThat(service.isRoomAvailable(1L, range("2026-11-02", "2026-11-03"))).isTrue();
+    }
+
+    @Test
+    void releasingUnknownReservationKeepsRoomBookingsIntact() {
+        service.reserveRoom(7L, "RES-1001", range("2026-11-01", "2026-11-04"));
+
+        service.releaseRoom(7L, "RES-9999");
+
+        assertThat(service.isRoomAvailable(7L, range("2026-11-01", "2026-11-04"))).isFalse();
+    }
+
+    @Test
     void occupyRoomMarksRoomOccupied() {
         service.occupyRoom(7L);
 
