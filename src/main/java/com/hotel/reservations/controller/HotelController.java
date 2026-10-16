@@ -109,4 +109,15 @@ public class HotelController {
     public ReservationDTO reserva(@PathVariable String reservaId) {
         return hotelFacade.getReservation(reservaId);
     }
+
+    /**
+     * Lista todas las reservas, de la mas reciente a la mas antigua.
+     *
+     * @return reservas
+     */
+    @GetMapping("/reservas")
+    @Operation(summary = "Listar todas las reservas")
+    public List<ReservationDTO> reservas() {
+        return hotelFacade.listReservations();
+    }
 }
