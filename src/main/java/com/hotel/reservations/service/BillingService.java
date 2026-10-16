@@ -1,6 +1,8 @@
 package com.hotel.reservations.service;
 
+import com.hotel.reservations.exception.ResourceNotFoundException;
 import com.hotel.reservations.model.AdditionalService;
+import com.hotel.reservations.model.Invoice;
 import com.hotel.reservations.model.InvoiceLine;
 import com.hotel.reservations.model.InvoiceLineCategory;
 import com.hotel.reservations.model.NightlyRate;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,6 +62,35 @@ public class BillingService {
                     service.getUnitPrice().setScale(2, RoundingMode.HALF_UP)));
         }
         return lines;
+    }
+
+    /**
+     * Genera la factura de la reserva con número secuencial, IVA del 19% y la guarda.
+     * No cambia el estado de la reserva; eso lo hace la fachada en el check-out.
+     *
+     * @param reservation reserva facturada
+     * @param roomQuote cotización noche a noche del hospedaje
+     * @return factura persistida
+     */
+    public Invoice generateInvoice(Reservation reservation, PriceQuote roomQuote) {
+        Invoice invoice = new Invoice(
+                sequenceGenerator.nextInvoiceNumber(),
+                reservation,
+                buildLines(reservation, roomQuote),
+                TAX_RATE,
+                LocalDateTime.now());
+        return invoiceRepository.save(invoice);
+    }
+
+    /**
+     * @param reservationId identificador de la reserva
+     * @return la factura emitida para la reserva
+     * @throws ResourceNotFoundException si la reserva aún no tiene factura
+     */
+    public Invoice findByReservationId(String reservationId) {
+        return invoiceRepository.findByReservationId(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No se encontró la factura de la reserva " + reservationId));
     }
 
     private List<InvoiceLine> buildRoomLines(Reservation reservation, PriceQuote roomQuote) {
