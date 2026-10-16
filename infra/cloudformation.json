@@ -23,7 +23,9 @@
           "Statement": [
             {
               "Effect": "Allow",
-              "Principal": { "Service": "ec2.amazonaws.com" },
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
               "Action": "sts:AssumeRole"
             }
           ]
@@ -37,7 +39,11 @@
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
         "InstanceProfileName": "hotel-backend-ec2-web-tier",
-        "Roles": [ { "Ref": "WebTierRole" } ]
+        "Roles": [
+          {
+            "Ref": "WebTierRole"
+          }
+        ]
       }
     },
     "HotelApplication": {
@@ -50,12 +56,80 @@
     "HotelApplicationVersion": {
       "Type": "AWS::ElasticBeanstalk::ApplicationVersion",
       "Properties": {
-        "ApplicationName": { "Ref": "HotelApplication" },
+        "ApplicationName": {
+          "Ref": "HotelApplication"
+        },
         "Description": "Versión del backend desplegada desde S3",
         "SourceBundle": {
           "S3Bucket": "hotel-backend-artifacts-532475280984",
-          "S3Key": { "Ref": "ArtifactKey" }
+          "S3Key": {
+            "Ref": "ArtifactKey"
+          }
         }
+      }
+    },
+    "HotelEnvironment": {
+      "Type": "AWS::ElasticBeanstalk::Environment",
+      "Properties": {
+        "EnvironmentName": "hotel-backend-prod",
+        "CNAMEPrefix": "hotel-backend-grupo",
+        "ApplicationName": {
+          "Ref": "HotelApplication"
+        },
+        "VersionLabel": {
+          "Ref": "HotelApplicationVersion"
+        },
+        "SolutionStackName": "64bit Amazon Linux 2023 v4.13.0 running Corretto 17",
+        "OptionSettings": [
+          {
+            "Namespace": "aws:elasticbeanstalk:environment",
+            "OptionName": "EnvironmentType",
+            "Value": "SingleInstance"
+          },
+          {
+            "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "InstanceType",
+            "Value": "t3.small"
+          },
+          {
+            "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "IamInstanceProfile",
+            "Value": {
+              "Ref": "WebTierInstanceProfile"
+            }
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "PORT",
+            "Value": "5000"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "CORS_ALLOWED_ORIGINS",
+            "Value": {
+              "Ref": "CorsAllowedOrigins"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "EnvironmentUrl": {
+      "Description": "URL pública del backend",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "http://",
+            {
+              "Fn::GetAtt": [
+                "HotelEnvironment",
+                "EndpointURL"
+              ]
+            }
+          ]
+        ]
       }
     }
   }
