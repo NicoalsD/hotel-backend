@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RateServiceTest {
 
@@ -77,5 +78,14 @@ class RateServiceTest {
     void resolvesSeasonOfSingleDate() {
         assertThat(rateService.resolveSeason(LocalDate.of(2026, 12, 1))).isEqualTo(Season.HIGH);
         assertThat(rateService.resolveSeason(LocalDate.of(2026, 11, 30))).isEqualTo(Season.LOW);
+    }
+
+    @Test
+    void rejectsMissingRoomTypeOrRange() {
+        DateRange range = new DateRange(LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 2));
+
+        assertThatThrownBy(() -> rateService.calculateQuote(null, range)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> rateService.calculateQuote(RoomType.SINGLE, null))
+                .isInstanceOf(NullPointerException.class);
     }
 }
