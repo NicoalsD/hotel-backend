@@ -119,3 +119,45 @@ Respuesta `200`:
 ```json
 [{ "type": "SPA", "label": "Spa", "unitPrice": 50.00, "chargeMode": "FLAT", "description": "Sesión de spa y relajación" }]
 ```
+
+## Check-in y check-out
+
+### PUT /api/hotel/checkin/{reservaId}
+
+Solo desde `CONFIRMED`. Genera la llave digital (UUID) mediante `AccessService` y marca la habitación como `OCCUPIED`.
+
+Respuesta `200`: `ReservationDTO` con `status` `CHECKED_IN`, `digitalKey` y `checkedInAt`.
+
+```json
+{
+  "id": "RES-1001", "status": "CHECKED_IN", "statusLabel": "Check-in realizado",
+  "digitalKey": { "code": "3f2b8c1e-9a4d-4e7b-8f10-5c2d6a7b9e01", "roomNumber": "201", "issuedAt": "2026-11-01T14:00:00", "active": true },
+  "checkedInAt": "2026-11-01T14:00:00"
+}
+```
+
+### PUT /api/hotel/checkout/{reservaId}
+
+Solo desde `CHECKED_IN`. Calcula los cargos, genera la factura, revoca la llave (`active` pasa a `false`), libera la habitación y deja la reserva en `CHECKED_OUT`.
+
+Respuesta `200`: `InvoiceDTO` (ver la siguiente sección).
+
+### GET /api/hotel/factura/{reservaId}
+
+Respuesta `200`: `InvoiceDTO`. Devuelve `404` si la reserva todavía no tiene factura, es decir, si no ha hecho check-out.
+
+```json
+{
+  "invoiceNumber": "FAC-0001", "reservationId": "RES-1001", "issuedAt": "2026-11-04T11:00:00",
+  "guest": { "fullName": "Ana Pérez", "documentNumber": "1020304050", "email": "ana@correo.com", "phone": "3001234567" },
+  "roomNumber": "201", "roomType": "DOUBLE", "roomTypeLabel": "Doble",
+  "checkIn": "2026-11-01", "checkOut": "2026-11-04", "nights": 3,
+  "lines": [
+    { "description": "Habitación 201 (Doble) - Temporada baja", "category": "ROOM", "quantity": 3, "unitPrice": 120.00, "amount": 360.00 },
+    { "description": "Desayuno", "category": "SERVICE", "quantity": 3, "unitPrice": 15.00, "amount": 45.00 }
+  ],
+  "roomSubtotal": 360.00, "servicesSubtotal": 45.00, "subtotal": 405.00,
+  "taxRate": 0.19, "taxAmount": 76.95, "total": 481.95,
+  "digitalKeyCode": "3f2b8c1e-9a4d-4e7b-8f10-5c2d6a7b9e01"
+}
+```
