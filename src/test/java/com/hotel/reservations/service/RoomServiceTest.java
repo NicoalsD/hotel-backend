@@ -1,6 +1,7 @@
 package com.hotel.reservations.service;
 
 import com.hotel.reservations.exception.ResourceNotFoundException;
+import com.hotel.reservations.exception.RoomNotAvailableException;
 import com.hotel.reservations.model.DateRange;
 import com.hotel.reservations.model.Room;
 import com.hotel.reservations.model.RoomStatus;
@@ -82,6 +83,52 @@ class RoomServiceTest {
     void isRoomAvailableThrowsNotFoundForUnknownRoom() {
         assertThatThrownBy(() -> service.isRoomAvailable(99L, range("2026-11-01", "2026-11-04")))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void reserveRoomThrowsConflictWhenRangeOverlaps() {
+        service.reserveRoom(7L, "RES-1001", range("2026-11-01", "2026-11-04"));
+
+        assertThatThrownBy(() -> service.reserveRoom(7L, "RES-1002", range("2026-11-02", "2026-11-05")))
+                .isInstanceOf(RoomNotAvailableException.class)
+                .hasMessage("La habitación 201 no está disponible en las fechas seleccionadas")
+                .satisfies(ex -> assertThat(((RoomNotAvailableException) ex).getStatusCode()).isEqualTo(409));
+    }
+
+    @Test
+    void reserveRoomThrowsNotFoundForUnknownRoom() {
+        assertThatThrownBy(() -> service.reserveRoom(99L, "RES-1001", range("2026-11-01", "2026-11-04")))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void releaseRoomRemovesBookingAndAllowsNewReservation() {
+        service.reserveRoom(7L, "RES-1001", range("2026-11-01", "2026-11-04"));
+
+        service.releaseRoom(7L, "RES-1001");
+
+        assertThat(service.isRoomAvailable(7L, range("2026-11-01", "2026-11-04"))).isTrue();
+        assertThat(service.findById(7L).getStatus()).isEqualTo(RoomStatus.AVAILABLE);
+        service.reserveRoom(7L, "RES-1002", range("2026-11-01", "2026-11-04"));
+        assertThat(service.isRoomAvailable(7L, range("2026-11-01", "2026-11-04"))).isFalse();
+    }
+
+    @Test
+    void releaseRoomOnlyRemovesTheGivenReservation() {
+        service.reserveRoom(7L, "RES-1001", range("2026-11-01", "2026-11-04"));
+        service.reserveRoom(7L, "RES-1002", range("2026-11-10", "2026-11-12"));
+
+        service.releaseRoom(7L, "RES-1001");
+
+        assertThat(service.isRoomAvailable(7L, range("2026-11-01", "2026-11-04"))).isTrue();
+        assertThat(service.isRoomAvailable(7L, range("2026-11-10", "2026-11-12"))).isFalse();
+    }
+
+    @Test
+    void occupyRoomMarksRoomOccupied() {
+        service.occupyRoom(7L);
+
+        assertThat(service.findById(7L).getStatus()).isEqualTo(RoomStatus.OCCUPIED);
     }
 
     @Test
