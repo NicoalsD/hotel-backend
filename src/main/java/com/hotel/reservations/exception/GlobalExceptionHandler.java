@@ -4,6 +4,7 @@ import com.hotel.reservations.dto.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -75,6 +76,17 @@ public class GlobalExceptionHandler {
                                                                HttpServletRequest request) {
         String message = "El valor '" + ex.getValue() + "' no es válido para el parámetro '" + ex.getName() + "'";
         return build(HttpStatus.BAD_REQUEST.value(), message, request);
+    }
+
+    /**
+     * @param ex cuerpo de solicitud que no se puede leer o no tiene el formato esperado
+     * @param request solicitud que produjo el error
+     * @return respuesta 400 con mensaje genérico en español
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUnreadableBody(HttpMessageNotReadableException ex,
+                                                                 HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST.value(), "El cuerpo de la solicitud no es válido", request);
     }
 
     /**
