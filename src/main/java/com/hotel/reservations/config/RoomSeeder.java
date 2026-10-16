@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Carga al inicio de la aplicación el inventario de 16 habitaciones del hotel.
+ * Carga al inicio de la aplicación el inventario de 16 habitaciones del hotel:
+ * 6 sencillas (ids 1-6, números 101-106, piso 1), 6 dobles (ids 7-12, números 201-206, piso 2)
+ * y 4 suites (ids 13-16, números 301-304, piso 3).
  * Solo siembra datos cuando el repositorio de habitaciones está vacío.
  */
 @Component
