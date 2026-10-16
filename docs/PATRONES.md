@@ -45,7 +45,7 @@ Cada entidad principal tiene una interfaz y una implementación en memoria:
 |---|---|---|
 | `RoomRepository` | `InMemoryRoomRepository` | `ConcurrentHashMap` por id |
 | `ReservationRepository` | `InMemoryReservationRepository` | `ConcurrentHashMap` por id de reserva |
-| `InvoiceRepository` | `InMemoryInvoiceRepository` | `ConcurrentHashMap` por número y reserva |
+| `InvoiceRepository` | `InMemoryInvoiceRepository` | `ConcurrentHashMap` por número de factura |
 
 Los servicios dependen de la interfaz, por lo que una base de datos real podría reemplazar estas clases sin cambiar la lógica.
 
