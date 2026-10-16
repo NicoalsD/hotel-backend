@@ -19,5 +19,5 @@ Backend del sistema de reservas de un hotel. Permite consultar disponibilidad y 
 - **Java 17**
 - **Spring Boot 4.0.8** (starter web MVC, validation y actuator)
 - **Maven** con el wrapper `./mvnw`
-- **springdoc / Swagger UI**: documentación interactiva de la API en `/swagger-ui.html`
+- **springdoc / Swagger UI** (planificado): documentación interactiva de la API en `/swagger-ui.html`. Aún no está incluido en el `pom.xml` de esta rama.
 - **JUnit 5 y AssertJ** para las pruebas unitarias
