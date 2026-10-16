@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PutMapping;
 import com.hotel.reservations.dto.ServiceCatalogItemDTO;
 import com.hotel.reservations.dto.ServiceRequestDTO;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -146,5 +147,17 @@ public class HotelController {
     @Operation(summary = "Consultar el catalogo de servicios adicionales")
     public List<ServiceCatalogItemDTO> catalogo() {
         return hotelFacade.getServiceCatalog();
+    }
+
+    /**
+     * Realiza el check-in de una reserva (caso de uso realizarCheckIn).
+     *
+     * @param reservaId identificador de la reserva
+     * @return reserva con check-in realizado
+     */
+    @PutMapping("/checkin/{reservaId}")
+    @Operation(summary = "Realizar el check-in de una reserva")
+    public ReservationDTO checkIn(@PathVariable String reservaId) {
+        return hotelFacade.performCheckIn(reservaId);
     }
 }
