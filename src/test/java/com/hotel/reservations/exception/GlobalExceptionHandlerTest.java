@@ -3,10 +3,14 @@ package com.hotel.reservations.exception;
 import com.hotel.reservations.dto.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpInputMessage;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -98,5 +102,51 @@ class GlobalExceptionHandlerTest {
 
         assertThat(response.getStatusCode().value()).isEqualTo(400);
         assertThat(response.getBody().message()).isEqualTo("Los datos enviados no son válidos");
+    }
+
+    @Test
+    void parametroObligatorioAusenteResponde400() {
+        MissingServletRequestParameterException ex =
+                new MissingServletRequestParameterException("checkIn", "LocalDate");
+
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleMissingParameter(ex, request("/api/hotel/disponibilidad"));
+
+        assertThat(response.getStatusCode().value()).isEqualTo(400);
+        assertThat(response.getBody().message()).isEqualTo("El parámetro obligatorio 'checkIn' no fue enviado");
+    }
+
+    @Test
+    void valorDeParametroInvalidoResponde400() {
+        MethodArgumentTypeMismatchException ex = mock(MethodArgumentTypeMismatchException.class);
+        when(ex.getValue()).thenReturn("abc");
+        when(ex.getName()).thenReturn("roomId");
+
+        ResponseEntity<ErrorResponseDTO> response = handler.handleTypeMismatch(ex, request(PATH));
+
+        assertThat(response.getStatusCode().value()).isEqualTo(400);
+        assertThat(response.getBody().message()).isEqualTo("El valor 'abc' no es válido para el parámetro 'roomId'");
+    }
+
+    @Test
+    void cuerpoNoLegibleResponde400SinDetalleTecnico() {
+        HttpMessageNotReadableException ex =
+                new HttpMessageNotReadableException("JSON parse error", (HttpInputMessage) null);
+
+        ResponseEntity<ErrorResponseDTO> response = handler.handleUnreadableBody(ex, request(PATH));
+
+        assertThat(response.getStatusCode().value()).isEqualTo(400);
+        assertThat(response.getBody().message()).isEqualTo("El cuerpo de la solicitud no es válido");
+    }
+
+    @Test
+    void errorNoControladoResponde500SinExponerDetalle() {
+        ResponseEntity<ErrorResponseDTO> response =
+                handler.handleUnexpected(new IllegalStateException("fallo secreto"), request(PATH));
+
+        assertThat(response.getStatusCode().value()).isEqualTo(500);
+        assertThat(response.getBody().error()).isEqualTo("Internal Server Error");
+        assertThat(response.getBody().message()).isEqualTo("Error interno del servidor");
+        assertThat(response.getBody().path()).isEqualTo(PATH);
     }
 }
